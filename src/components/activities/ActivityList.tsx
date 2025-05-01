@@ -1,13 +1,12 @@
+
 import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
 import { Activity } from '@/types/activity';
 import ActivityItem from './ActivityItem';
 import { getAllActivities, updateActivity, deleteActivity } from '@/services/activityService';
 import { getActivitiesForDay } from '@/utils/dateUtils';
 import { formatDayAndDate } from '@/utils/dateUtils';
-import { id } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface ActivityListProps {
   date: Date;
@@ -17,7 +16,6 @@ const ActivityList = ({ date }: ActivityListProps) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
 
   useEffect(() => {
     const fetchActivities = async () => {

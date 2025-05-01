@@ -5,6 +5,7 @@ import CalendarDays from './CalendarDays';
 import CalendarCells from './CalendarCells';
 import { Activity } from '@/types/activity';
 import { getAllActivities } from '@/services/activityService';
+import { fetchNationalHolidays } from '@/utils/holidaysUtils';
 
 interface CalendarProps {
   selectedDate: Date;
@@ -15,27 +16,28 @@ const Calendar = ({ selectedDate, onDateChange }: CalendarProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [activities, setActivities] = useState<Activity[]>([]);
   const [holidays, setHolidays] = useState<Date[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchActivities = async () => {
       try {
+        setIsLoading(true);
         const data = await getAllActivities();
         setActivities(data);
       } catch (error) {
         console.error("Failed to fetch activities:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchActivities();
+    const fetchHolidays = async () => {
+      const holidayDates = await fetchNationalHolidays();
+      setHolidays(holidayDates);
+    };
 
-    // In the future, we'll fetch real holidays from an API
-    // For now, let's add some dummy holidays
-    const dummyHolidays = [
-      new Date(2025, 0, 1),  // New Year
-      new Date(2025, 4, 1),  // Labor Day
-      new Date(2025, 7, 17), // Independence Day
-    ];
-    setHolidays(dummyHolidays);
+    fetchActivities();
+    fetchHolidays();
   }, []);
 
   return (
@@ -51,6 +53,7 @@ const Calendar = ({ selectedDate, onDateChange }: CalendarProps) => {
         onDateChange={onDateChange}
         activities={activities}
         holidays={holidays}
+        isLoading={isLoading}
       />
     </div>
   );

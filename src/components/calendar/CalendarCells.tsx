@@ -8,12 +8,13 @@ import {
   endOfWeek, 
   addDays, 
   isSameMonth, 
-  isSameDay
+  isSameDay,
+  isWeekend
 } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
 import { Activity } from '@/types/activity';
 import { hasActivities } from '@/utils/dateUtils';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface CalendarCellsProps {
   currentMonth: Date;
@@ -21,6 +22,7 @@ interface CalendarCellsProps {
   onDateChange: (date: Date) => void;
   activities: Activity[];
   holidays: Date[];
+  isLoading: boolean;
 }
 
 const CalendarCells = ({ 
@@ -28,9 +30,9 @@ const CalendarCells = ({
   selectedDate, 
   onDateChange, 
   activities,
-  holidays 
+  holidays,
+  isLoading
 }: CalendarCellsProps) => {
-  const navigate = useNavigate();
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
   const startDate = startOfWeek(monthStart, { weekStartsOn: 1 }); // Monday as start of week
@@ -42,7 +44,6 @@ const CalendarCells = ({
 
   const handleDayClick = (day: Date) => {
     onDateChange(day);
-    navigate(`/day/${format(day, 'yyyy-MM-dd')}`);
   };
 
   // Check if a date is a holiday
@@ -59,6 +60,7 @@ const CalendarCells = ({
       const isSelected = isSameDay(day, selectedDate);
       const hasEvent = hasActivities(activities, cloneDay);
       const isHolidayDay = isHoliday(cloneDay);
+      const isWeekendDay = isWeekend(cloneDay); // Check if it's weekend
 
       days.push(
         <div
@@ -66,15 +68,14 @@ const CalendarCells = ({
           className={cn(
             "h-12 relative flex items-center justify-center cursor-pointer",
             !isCurrentMonth && "text-slate-600",
-            isHolidayDay && "calendar-day-holiday"
+            (isHolidayDay || isWeekendDay) && isCurrentMonth && "text-merah-500",
           )}
           onClick={() => handleDayClick(cloneDay)}
         >
           <div 
             className={cn(
               "w-10 h-10 flex items-center justify-center rounded-full relative",
-              isSelected && !hasEvent && "calendar-day-selected",
-              isSelected && hasEvent && "calendar-day-selected"
+              isSelected && "bg-merah-700 text-white"
             )}
           >
             {formattedDate}
@@ -90,6 +91,20 @@ const CalendarCells = ({
       </div>
     );
     days = [];
+  }
+
+  if (isLoading) {
+    return <div className="bg-dark-700 rounded-lg p-2">
+      {[1, 2, 3, 4, 5].map((row) => (
+        <div key={row} className="grid grid-cols-7 mb-2">
+          {[1, 2, 3, 4, 5, 6, 7].map((cell) => (
+            <div key={`${row}-${cell}`} className="h-12 flex items-center justify-center">
+              <Skeleton className="w-10 h-10 rounded-full bg-dark-600" />
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>;
   }
 
   return <div className="bg-dark-700 rounded-lg p-2">{rows}</div>;

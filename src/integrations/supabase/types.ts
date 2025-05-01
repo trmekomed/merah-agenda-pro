@@ -9,7 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      activities: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          end_time: string
+          id: string
+          label: Database["public"]["Enums"]["activity_label"]
+          location: Database["public"]["Enums"]["activity_location"]
+          start_time: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_time: string
+          id?: string
+          label: Database["public"]["Enums"]["activity_label"]
+          location: Database["public"]["Enums"]["activity_location"]
+          start_time: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_time?: string
+          id?: string
+          label?: Database["public"]["Enums"]["activity_label"]
+          location?: Database["public"]["Enums"]["activity_location"]
+          start_time?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +56,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      activity_label: "RO 1" | "RO 2" | "RO 3"
+      activity_location: "Kantor" | "Online" | "Jakarta" | "Luar Kota"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +172,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      activity_label: ["RO 1", "RO 2", "RO 3"],
+      activity_location: ["Kantor", "Online", "Jakarta", "Luar Kota"],
+    },
   },
 } as const

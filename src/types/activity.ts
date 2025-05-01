@@ -11,6 +11,9 @@ export interface Activity {
   description: string;
   label: ActivityLabel;
   location: ActivityLocation;
+  created_by: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CreateActivityDTO {
@@ -20,4 +23,5 @@ export interface CreateActivityDTO {
   description: string;
   label: ActivityLabel;
   location: ActivityLocation;
+  created_by: string;
 }
