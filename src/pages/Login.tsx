@@ -7,17 +7,17 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('trm.ekomed@gmail.com');
+  const [password, setPassword] = useState('kalenderMRT');
   const [isLoading, setIsLoading] = useState(false);
-  const { user, signIn } = useAuth();
+  const { user, signIn, signUp } = useAuth();
 
   // Redirect if already logged in
   if (user) {
     return <Navigate to="/" />;
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -39,6 +39,43 @@ const Login = () => {
     }
   };
 
+  const handleSignUp = async () => {
+    setIsLoading(true);
+    
+    try {
+      await signUp(email, password);
+      toast({
+        title: "Akun dibuat",
+        description: "Silakan login dengan akun baru Anda",
+      });
+      
+      // Automatically sign in after creating account
+      try {
+        await signIn(email, password);
+        toast({
+          title: "Login berhasil",
+          description: "Selamat datang!",
+        });
+      } catch (signInError: any) {
+        console.error('Auto sign in error:', signInError);
+        // If an email confirmation is required, this will fail
+        toast({
+          title: "Pembuatan akun berhasil",
+          description: "Silakan periksa email Anda untuk konfirmasi atau coba login.",
+        });
+      }
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      toast({
+        title: "Pendaftaran gagal",
+        description: error.message || "Gagal membuat akun",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-dark-700 text-white flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-dark-800 rounded-lg shadow-lg p-6 border border-dark-600">
@@ -47,7 +84,7 @@ const Login = () => {
           <p className="text-slate-400 mt-2">Masuk ke akun Anda</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSignIn} className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="email" className="block text-sm font-medium">
               Email
@@ -85,6 +122,19 @@ const Login = () => {
           >
             {isLoading ? 'Memproses...' : 'Masuk'}
           </Button>
+          
+          <div className="text-center mt-4">
+            <p className="text-slate-400 text-sm mb-2">Belum memiliki akun?</p>
+            <Button
+              type="button"
+              onClick={handleSignUp}
+              disabled={isLoading}
+              variant="outline"
+              className="w-full border-merah-500 text-merah-500 hover:bg-merah-500 hover:text-white"
+            >
+              {isLoading ? 'Memproses...' : 'Daftar Akun Baru'}
+            </Button>
+          </div>
         </form>
       </div>
     </div>
