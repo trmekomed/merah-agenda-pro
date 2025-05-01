@@ -36,7 +36,7 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
       {/** Multi-day background */}
       {(isMultiDayStart || isMultiDayMid || isMultiDayEnd) && <div className={clsx("absolute top-1/2 left-0 right-0 h-4 -translate-y-1/2 bg-red-600/30 z-0", isMultiDayStart && "rounded-l-md", isMultiDayEnd && "rounded-r-md")} />}
 
-      <span className="relative z-10 my-3">{date.getDate()}</span>
+      <span className="">{date.getDate()}</span>
 
       {/** Dots below date */}
       {activityLabels.length > 0 && <div className="absolute bottom-0 flex gap-0.5 mt-0.5 z-10">
