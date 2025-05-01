@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Calendar from '@/components/calendar/Calendar';
@@ -18,6 +17,7 @@ import { useAuth } from '@/context/AuthContext';
 import SearchModal from '@/components/activities/SearchModal';
 import { motion } from 'framer-motion';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import { cn } from '@/lib/utils';
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
