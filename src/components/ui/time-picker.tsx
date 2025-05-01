@@ -40,22 +40,26 @@ export function TimePickerDemo({
   }
 
   // Increment and decrement functions
-  function incrementHours() {
+  function incrementHours(e: React.MouseEvent) {
+    e.stopPropagation();
     const newHours = (date.getHours() + 1) % 24;
     setTime(newHours, date.getMinutes());
   }
 
-  function decrementHours() {
+  function decrementHours(e: React.MouseEvent) {
+    e.stopPropagation();
     const newHours = (date.getHours() - 1 + 24) % 24;
     setTime(newHours, date.getMinutes());
   }
 
-  function incrementMinutes() {
+  function incrementMinutes(e: React.MouseEvent) {
+    e.stopPropagation();
     const newMinutes = (date.getMinutes() + 1) % 60;
     setTime(date.getHours(), newMinutes);
   }
 
-  function decrementMinutes() {
+  function decrementMinutes(e: React.MouseEvent) {
+    e.stopPropagation();
     const newMinutes = (date.getMinutes() - 1 + 60) % 60;
     setTime(date.getHours(), newMinutes);
   }
@@ -65,8 +69,16 @@ export function TimePickerDemo({
     return value.toString().padStart(2, "0");
   }
 
+  // Prevent propagation for the time picker
+  const handleTimePickerClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div 
+      className={cn("flex items-center gap-2", className)}
+      onClick={handleTimePickerClick}
+    >
       <div className="flex flex-col items-center">
         <Button 
           variant="ghost" 
@@ -82,6 +94,7 @@ export function TimePickerDemo({
           onChange={handleHoursChange}
           type="text"
           aria-label="Hours"
+          onClick={(e) => e.stopPropagation()}
         />
         <Button 
           variant="ghost" 
@@ -110,6 +123,7 @@ export function TimePickerDemo({
           onChange={handleMinutesChange}
           type="text"
           aria-label="Minutes"
+          onClick={(e) => e.stopPropagation()}
         />
         <Button 
           variant="ghost" 

@@ -1,3 +1,4 @@
+
 import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
@@ -60,6 +61,17 @@ const SheetContent = React.forwardRef<
     <SheetPrimitive.Content
       ref={ref}
       className={cn(sheetVariants({ side }), className)}
+      onInteractOutside={(e) => {
+        // Check if the target is part of a popover or calendar
+        const target = e.target as HTMLElement;
+        if (
+          target.closest('[data-radix-popper-content-wrapper]') || 
+          target.closest('.react-calendar') ||
+          target.closest('.time-picker-wrapper')
+        ) {
+          e.preventDefault();
+        }
+      }}
       {...props}
     >
       {children}

@@ -54,6 +54,11 @@ export function DateTimePicker({
     setSelectedDate(newDate);
   };
 
+  // Prevent click events from bubbling up to parent elements
+  const handlePopoverClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -64,22 +69,32 @@ export function DateTimePicker({
             !date && "text-muted-foreground",
             className
           )}
+          onClick={(e) => e.stopPropagation()}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {format(selectedDate, "PPpp", { locale: id })}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0 bg-dark-600 border-dark-500">
+      <PopoverContent 
+        className="w-auto p-0 bg-dark-600 border-dark-500" 
+        onClick={handlePopoverClick}
+        onInteractOutside={(e) => {
+          // Don't close the popover when interacting with the calendar or time picker
+          e.preventDefault();
+        }}
+      >
         <div className="p-4 border-b border-dark-500">
           <div className="flex items-center justify-center mb-2">
             <Clock className="mr-2 h-4 w-4 text-merah-500" />
             <span className="text-sm font-medium text-white">Pilih waktu</span>
           </div>
-          <TimePickerDemo
-            setDate={handleTimeChange}
-            date={selectedDate}
-            className="justify-center"
-          />
+          <div className="time-picker-wrapper" onClick={(e) => e.stopPropagation()}>
+            <TimePickerDemo
+              setDate={handleTimeChange}
+              date={selectedDate}
+              className="justify-center"
+            />
+          </div>
         </div>
         <Calendar
           mode="single"
@@ -87,6 +102,13 @@ export function DateTimePicker({
           onSelect={handleDateSelect}
           initialFocus
           className="border-t border-dark-500 p-3 pointer-events-auto"
+          classNames={{
+            day_today: "bg-merah-500/20 text-merah-500 font-bold",
+            day_selected: "bg-merah-700 text-white hover:bg-merah-800",
+          }}
+          onDayClick={(e) => {
+            e.stopPropagation();
+          }}
         />
       </PopoverContent>
     </Popover>
