@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Calendar from '@/components/calendar/Calendar';
@@ -11,22 +12,33 @@ import {
 import ActivityForm from '@/components/activities/ActivityForm';
 import { Plus, Search, Table2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { createActivity } from '@/services/activityService';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/context/AuthContext';
 import SearchModal from '@/components/activities/SearchModal';
 import { motion } from 'framer-motion';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { cn } from '@/lib/utils';
+import { useActivities } from '@/hooks/use-activities';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const Index = () => {
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+const IndexContent = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [refresh, setRefresh] = useState(false);
   const navigate = useNavigate();
   const { user, signOut, isLoading } = useAuth();
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const { createActivity } = useActivities();
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
@@ -46,10 +58,8 @@ const Index = () => {
         created_by: user.email || ''
       };
       
-      await createActivity(activityData);
+      createActivity(activityData);
       setIsAddDialogOpen(false);
-      setRefresh(!refresh);
-      toast.success("Kegiatan berhasil ditambahkan");
     } catch (error) {
       console.error("Failed to add activity:", error);
       toast.error("Gagal menambahkan kegiatan");
@@ -126,7 +136,7 @@ const Index = () => {
             <Calendar selectedDate={selectedDate} onDateChange={handleDateChange} />
           </div>
           <div>
-            <ActivityList date={selectedDate} key={`${selectedDate.toISOString()}-${refresh}`} />
+            <ActivityList date={selectedDate} />
           </div>
         </div>
       </main>
@@ -183,7 +193,7 @@ const Index = () => {
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className={cn(
           "bg-dark-700 text-white border-dark-600",
-          isMobile ? "w-[95%] max-w-[95%] p-4" : "max-w-md"
+          isMobile ? "w-[calc(100%-24px)] max-h-[80vh] p-3 max-w-none" : "max-w-md"
         )}>
           <DialogTitle className={cn(
             "font-bold text-white",
@@ -219,6 +229,14 @@ const Index = () => {
         onSelectActivity={setSelectedDate}
       />
     </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <IndexContent />
+    </QueryClientProvider>
   );
 };
 

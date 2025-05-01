@@ -1,80 +1,24 @@
 
-import { useState, useEffect } from 'react';
-import { Activity } from '@/types/activity';
+import { useState } from 'react';
 import ActivityItem from './ActivityItem';
-import { getAllActivities, updateActivity, deleteActivity } from '@/services/activityService';
-import { getActivitiesForDay } from '@/utils/dateUtils';
 import { formatDayAndDate } from '@/utils/dateUtils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from '@/hooks/use-toast';
+import { Activity } from '@/types/activity';
+import { useActivities } from '@/hooks/use-activities';
 
 interface ActivityListProps {
   date: Date;
 }
 
 const ActivityList = ({ date }: ActivityListProps) => {
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { activities, isLoading, updateActivity, deleteActivity } = useActivities(date);
 
-  useEffect(() => {
-    const fetchActivities = async () => {
-      try {
-        setIsLoading(true);
-        const data = await getAllActivities();
-        setActivities(data);
-        const filtered = getActivitiesForDay(data, date);
-        setFilteredActivities(filtered);
-      } catch (error) {
-        console.error("Failed to fetch activities:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchActivities();
-  }, [date]);
-
-  const handleUpdate = async (id: string, data: Partial<Activity>) => {
-    try {
-      await updateActivity(id, data);
-      const updatedActivities = await getAllActivities();
-      setActivities(updatedActivities);
-      setFilteredActivities(getActivitiesForDay(updatedActivities, date));
-      toast({
-        title: "Kegiatan diperbarui",
-        description: "Kegiatan telah berhasil diperbarui",
-        variant: "default"
-      });
-    } catch (error) {
-      console.error("Failed to update activity:", error);
-      toast({
-        title: "Gagal memperbarui kegiatan",
-        description: "Terjadi kesalahan saat memperbarui kegiatan",
-        variant: "destructive"
-      });
-    }
+  const handleUpdate = (id: string, data: Partial<Activity>) => {
+    updateActivity({ id, data });
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteActivity(id);
-      const updatedActivities = await getAllActivities();
-      setActivities(updatedActivities);
-      setFilteredActivities(getActivitiesForDay(updatedActivities, date));
-      toast({
-        title: "Kegiatan dihapus",
-        description: "Kegiatan telah berhasil dihapus",
-        variant: "default"
-      });
-    } catch (error) {
-      console.error("Failed to delete activity:", error);
-      toast({
-        title: "Gagal menghapus kegiatan",
-        description: "Terjadi kesalahan saat menghapus kegiatan",
-        variant: "destructive"
-      });
-    }
+  const handleDelete = (id: string) => {
+    deleteActivity(id);
   };
 
   return (
@@ -89,7 +33,7 @@ const ActivityList = ({ date }: ActivityListProps) => {
             Kegiatan Hari Ini
           </h3>
           <span className="text-white bg-merah-700 rounded-full px-3 py-1 text-sm">
-            {filteredActivities.length} Kegiatan
+            {activities.length} Kegiatan
           </span>
         </div>
       </div>
@@ -100,12 +44,12 @@ const ActivityList = ({ date }: ActivityListProps) => {
             <Skeleton className="h-24 w-full bg-dark-600" />
           </div>
         ))
-      ) : filteredActivities.length === 0 ? (
+      ) : activities.length === 0 ? (
         <div className="text-center py-8 text-slate-400">
           Tidak ada kegiatan pada hari ini.
         </div>
       ) : (
-        filteredActivities.map((activity) => (
+        activities.map((activity) => (
           <ActivityItem 
             key={activity.id}
             activity={activity}

@@ -21,11 +21,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { DateTimePicker } from '@/components/ui/date-time-picker';
+import { SimpleDateTimeInput } from '@/components/ui/simple-date-time-input';
 import { Activity, ActivityLabel, ActivityLocation } from '@/types/activity';
 import { calculateDurationInMinutes, formatDuration } from '@/utils/dateUtils';
 import { parseISO } from 'date-fns';
 import { AlertCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 interface ActivityFormProps {
   initialData?: Activity;
@@ -50,6 +52,7 @@ type ActivityFormData = z.infer<typeof activityFormSchema>;
 
 const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormProps) => {
   const [duration, setDuration] = useState('');
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Parse string dates to Date objects
   const getInitialValues = () => {
@@ -60,6 +63,7 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
         end_time: parseISO(initialData.end_time),
       };
     }
+    
     const now = new Date();
     const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
     
@@ -106,7 +110,7 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
   };
 
   return (
-    <div className="p-2 mt-4">
+    <div className="p-2 mt-4 max-h-[60vh] overflow-y-auto">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <FormField
@@ -114,64 +118,74 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nama Kegiatan</FormLabel>
+                <FormLabel className={cn(isMobile && "text-sm")}>Nama Kegiatan</FormLabel>
                 <FormControl>
                   <Input 
                     placeholder="Masukkan nama kegiatan" 
                     {...field} 
-                    className="bg-dark-600 border-dark-500 text-white" 
+                    className={cn(
+                      "bg-dark-600 border-dark-500 text-white",
+                      isMobile && "text-sm"
+                    )}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className={cn(isMobile && "text-xs")} />
               </FormItem>
             )}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="start_time"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Waktu Mulai</FormLabel>
-                  <FormControl>
-                    <DateTimePicker
-                      date={field.value}
-                      setDate={field.onChange}
-                      className="bg-dark-600 border-dark-500 text-white"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="start_time"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className={cn(isMobile && "text-sm")}>Waktu Mulai</FormLabel>
+                <FormControl>
+                  <SimpleDateTimeInput
+                    date={field.value}
+                    setDate={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage className={cn(isMobile && "text-xs")} />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="end_time"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Waktu Selesai</FormLabel>
-                  <FormControl>
-                    <DateTimePicker
-                      date={field.value}
-                      setDate={field.onChange}
-                      className="bg-dark-600 border-dark-500 text-white"
-                    />
-                  </FormControl>
-                  <FormMessage className="text-merah-500" />
-                </FormItem>
-              )}
-            />
-          </div>
+          <FormField
+            control={form.control}
+            name="end_time"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className={cn(isMobile && "text-sm")}>Waktu Selesai</FormLabel>
+                <FormControl>
+                  <SimpleDateTimeInput
+                    date={field.value}
+                    setDate={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage className={cn("text-merah-500", isMobile && "text-xs")} />
+              </FormItem>
+            )}
+          />
 
-          <div className="bg-dark-600 p-3 rounded-md border border-dark-500 flex items-center space-x-2">
+          <div className={cn(
+            "bg-dark-600 p-3 rounded-md border border-dark-500 flex items-center space-x-2",
+            isMobile && "p-2"
+          )}>
             <div className="flex-grow">
-              <p className="text-sm text-slate-300">Durasi: <span className="font-medium text-white">{duration}</span></p>
+              <p className={cn(
+                "text-slate-300",
+                isMobile ? "text-xs" : "text-sm"
+              )}>
+                Durasi: <span className="font-medium text-white">{duration}</span>
+              </p>
             </div>
             {endTime < startTime && (
-              <div className="flex items-center text-merah-500 text-sm">
-                <AlertCircle className="h-4 w-4 mr-1" />
+              <div className={cn(
+                "flex items-center text-merah-500",
+                isMobile ? "text-xs" : "text-sm"
+              )}>
+                <AlertCircle className={cn("mr-1", isMobile ? "h-3 w-3" : "h-4 w-4")} />
                 <span>Waktu tidak valid</span>
               </div>
             )}
@@ -182,16 +196,19 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Keterangan</FormLabel>
+                <FormLabel className={cn(isMobile && "text-sm")}>Keterangan</FormLabel>
                 <FormControl>
                   <Textarea 
                     placeholder="Masukkan keterangan kegiatan" 
-                    {...field} 
-                    className="bg-dark-600 border-dark-500 text-white min-h-[100px]" 
+                    {...field}
+                    className={cn(
+                      "bg-dark-600 border-dark-500 text-white min-h-[80px]",
+                      isMobile && "text-sm min-h-[60px]"
+                    )}
                     value={field.value || ''}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className={cn(isMobile && "text-xs")} />
               </FormItem>
             )}
           />
@@ -202,13 +219,16 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
               name="label"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Label</FormLabel>
+                  <FormLabel className={cn(isMobile && "text-sm")}>Label</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="bg-dark-600 border-dark-500 text-white">
+                      <SelectTrigger className={cn(
+                        "bg-dark-600 border-dark-500 text-white",
+                        isMobile && "text-sm h-8"
+                      )}>
                         <SelectValue placeholder="Pilih label" />
                       </SelectTrigger>
                     </FormControl>
@@ -218,7 +238,7 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
                       <SelectItem value="RO 3">RO 3</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage className={cn(isMobile && "text-xs")} />
                 </FormItem>
               )}
             />
@@ -228,13 +248,16 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Lokasi</FormLabel>
+                  <FormLabel className={cn(isMobile && "text-sm")}>Lokasi</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="bg-dark-600 border-dark-500 text-white">
+                      <SelectTrigger className={cn(
+                        "bg-dark-600 border-dark-500 text-white",
+                        isMobile && "text-sm h-8"
+                      )}>
                         <SelectValue placeholder="Pilih lokasi" />
                       </SelectTrigger>
                     </FormControl>
@@ -245,17 +268,27 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
                       <SelectItem value="Luar Kota">Luar Kota</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage className={cn(isMobile && "text-xs")} />
                 </FormItem>
               )}
             />
           </div>
 
           <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={onCancel} className="border-merah-700 text-merah-500 hover:bg-merah-700/20">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onCancel} 
+              size={isMobile ? "sm" : "default"}
+              className="border-merah-700 text-merah-500 hover:bg-merah-700/20"
+            >
               Batal
             </Button>
-            <Button type="submit" className="bg-merah-700 hover:bg-merah-800 text-white">
+            <Button 
+              type="submit" 
+              className="bg-merah-700 hover:bg-merah-800 text-white"
+              size={isMobile ? "sm" : "default"}
+            >
               {mode === 'create' ? 'Tambah Kegiatan' : 'Simpan Perubahan'}
             </Button>
           </div>
