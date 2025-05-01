@@ -1,10 +1,10 @@
-
 import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { usePreventInteractOutside } from "./alert-dialog"
 
 const Sheet = SheetPrimitive.Root
 
@@ -55,23 +55,16 @@ interface SheetContentProps
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
->(({ side = "right", className, children, ...props }, ref) => (
+>(({ side = "right", className, children, ...props }, ref) => {
+  const handleInteractOutside = usePreventInteractOutside();
+  
+  return (
   <SheetPortal>
     <SheetOverlay />
     <SheetPrimitive.Content
       ref={ref}
       className={cn(sheetVariants({ side }), className)}
-      onInteractOutside={(e) => {
-        // Check if the target is part of a popover or calendar
-        const target = e.target as HTMLElement;
-        if (
-          target.closest('[data-radix-popper-content-wrapper]') || 
-          target.closest('.react-calendar') ||
-          target.closest('.time-picker-wrapper')
-        ) {
-          e.preventDefault();
-        }
-      }}
+      onInteractOutside={handleInteractOutside}
       {...props}
     >
       {children}
@@ -81,7 +74,7 @@ const SheetContent = React.forwardRef<
       </SheetPrimitive.Close>
     </SheetPrimitive.Content>
   </SheetPortal>
-))
+)})
 SheetContent.displayName = SheetPrimitive.Content.displayName
 
 const SheetHeader = ({
@@ -140,4 +133,3 @@ export {
   Sheet, SheetClose,
   SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetOverlay, SheetPortal, SheetTitle, SheetTrigger
 }
-
