@@ -143,7 +143,8 @@ const DayView = () => {
               description: '',
               label: 'RO 1',
               location: 'Kantor',
-              id: ''
+              id: '',
+              created_by: user?.email || '' // Add the missing created_by field
             }} 
           />
         </DialogContent>

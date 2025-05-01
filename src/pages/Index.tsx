@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Calendar from '@/components/calendar/Calendar';
@@ -158,7 +157,8 @@ const Index = () => {
               description: '',
               label: 'RO 1',
               location: 'Kantor',
-              id: ''
+              id: '',
+              created_by: user?.email || '' // Add the missing created_by field
             }} 
           />
         </DialogContent>
