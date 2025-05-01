@@ -1,11 +1,13 @@
 
 import { useState, useEffect } from 'react';
+import { isSameDay } from 'date-fns';
 import CalendarHeader from './CalendarHeader';
 import CalendarDays from './CalendarDays';
 import CalendarCells from './CalendarCells';
 import { Activity } from '@/types/activity';
 import { getAllActivities } from '@/services/activityService';
 import { fetchNationalHolidays } from '@/utils/holidaysUtils';
+import { cn } from '@/lib/utils';
 
 interface CalendarProps {
   selectedDate: Date;
@@ -40,11 +42,18 @@ const Calendar = ({ selectedDate, onDateChange }: CalendarProps) => {
     fetchHolidays();
   }, []);
 
+  const handleTodayClick = () => {
+    const today = new Date();
+    setCurrentMonth(today);
+    onDateChange(today);
+  };
+
   return (
     <div className="bg-dark-600 rounded-xl p-4 shadow-lg">
       <CalendarHeader 
         currentMonth={currentMonth} 
         onMonthChange={setCurrentMonth} 
+        onTodayClick={handleTodayClick}
       />
       <CalendarDays />
       <CalendarCells 

@@ -20,20 +20,45 @@ export function DateTimePicker({
   setDate,
   className,
 }: DateTimePickerProps) {
-  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(date);
+  const [selectedDate, setSelectedDate] = React.useState<Date>(date);
 
   // Update the parent component's state when the selected date changes
   React.useEffect(() => {
-    if (selectedDate) {
-      setDate(selectedDate);
-    }
+    setDate(selectedDate);
   }, [selectedDate, setDate]);
+
+  // Update internal state if external date changes
+  React.useEffect(() => {
+    setSelectedDate(date);
+  }, [date]);
+
+  const handleDateSelect = (newDate: Date | undefined) => {
+    if (newDate) {
+      // Preserve the time from the current selectedDate
+      const updatedDate = new Date(newDate);
+      updatedDate.setHours(selectedDate.getHours());
+      updatedDate.setMinutes(selectedDate.getMinutes());
+      updatedDate.setSeconds(0);
+      updatedDate.setMilliseconds(0);
+      setSelectedDate(updatedDate);
+    }
+  };
+
+  // Handle time change separately to maintain the selected date
+  const handleTimeChange = (timeDate: Date) => {
+    const newDate = new Date(selectedDate);
+    newDate.setHours(timeDate.getHours());
+    newDate.setMinutes(timeDate.getMinutes());
+    newDate.setSeconds(0);
+    newDate.setMilliseconds(0);
+    setSelectedDate(newDate);
+  };
 
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          variant={"outline"}
+          variant="outline"
           className={cn(
             "w-full justify-start text-left font-normal",
             !date && "text-muted-foreground",
@@ -41,7 +66,7 @@ export function DateTimePicker({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPpp", { locale: id }) : <span>Pilih tanggal dan waktu</span>}
+          {format(selectedDate, "PPpp", { locale: id })}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0 bg-dark-600 border-dark-500">
@@ -51,14 +76,15 @@ export function DateTimePicker({
             <span className="text-sm font-medium text-white">Pilih waktu</span>
           </div>
           <TimePickerDemo
-            setDate={setSelectedDate}
-            date={selectedDate || date}
+            setDate={handleTimeChange}
+            date={selectedDate}
+            className="justify-center"
           />
         </div>
         <Calendar
           mode="single"
-          selected={selectedDate || date}
-          onSelect={setSelectedDate}
+          selected={selectedDate}
+          onSelect={handleDateSelect}
           initialFocus
           className="border-t border-dark-500 p-3 pointer-events-auto"
         />

@@ -3,10 +3,8 @@ import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 const CalendarDays = () => {
-  const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  
-  // For Indonesian days
-  const indonesianDays = ['M', 'S', 'S', 'R', 'K', 'J', 'S'];
+  // For Indonesian days - starting with Monday
+  const indonesianDays = ['S', 'S', 'R', 'K', 'J', 'S', 'M'];
   
   return (
     <div className="grid grid-cols-7 mb-2">

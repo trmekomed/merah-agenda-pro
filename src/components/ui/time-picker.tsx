@@ -2,6 +2,8 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { ChevronUp, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface TimePickerProps {
   date: Date;
@@ -26,15 +28,36 @@ export function TimePickerDemo({
   // Handle hours change
   function handleHoursChange(e: React.ChangeEvent<HTMLInputElement>) {
     const hours = parseInt(e.target.value, 10);
-    if (isNaN(hours) || hours < 0 || hours > 23) return;
-    setTime(hours, date.getMinutes());
+    if (isNaN(hours)) return;
+    setTime(Math.max(0, Math.min(23, hours)), date.getMinutes());
   }
 
   // Handle minutes change
   function handleMinutesChange(e: React.ChangeEvent<HTMLInputElement>) {
     const minutes = parseInt(e.target.value, 10);
-    if (isNaN(minutes) || minutes < 0 || minutes > 59) return;
-    setTime(date.getHours(), minutes);
+    if (isNaN(minutes)) return;
+    setTime(date.getHours(), Math.max(0, Math.min(59, minutes)));
+  }
+
+  // Increment and decrement functions
+  function incrementHours() {
+    const newHours = (date.getHours() + 1) % 24;
+    setTime(newHours, date.getMinutes());
+  }
+
+  function decrementHours() {
+    const newHours = (date.getHours() - 1 + 24) % 24;
+    setTime(newHours, date.getMinutes());
+  }
+
+  function incrementMinutes() {
+    const newMinutes = (date.getMinutes() + 1) % 60;
+    setTime(date.getHours(), newMinutes);
+  }
+
+  function decrementMinutes() {
+    const newMinutes = (date.getMinutes() - 1 + 60) % 60;
+    setTime(date.getHours(), newMinutes);
   }
 
   // Format number to always have 2 digits
@@ -43,24 +66,60 @@ export function TimePickerDemo({
   }
 
   return (
-    <div className={cn("flex gap-2", className)}>
-      <Input
-        className="w-16 bg-dark-700 border-dark-500 text-white text-center"
-        value={formatTimeUnit(date.getHours())}
-        onChange={handleHoursChange}
-        type="number"
-        min="0"
-        max="23"
-      />
+    <div className={cn("flex items-center gap-2", className)}>
+      <div className="flex flex-col items-center">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-8 px-2 text-merah-500" 
+          onClick={incrementHours}
+        >
+          <ChevronUp className="h-4 w-4" />
+        </Button>
+        <Input
+          className="w-16 bg-dark-700 border-dark-500 text-white text-center"
+          value={formatTimeUnit(date.getHours())}
+          onChange={handleHoursChange}
+          type="text"
+          aria-label="Hours"
+        />
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-8 px-2 text-merah-500" 
+          onClick={decrementHours}
+        >
+          <ChevronDown className="h-4 w-4" />
+        </Button>
+      </div>
+      
       <span className="text-white text-xl">:</span>
-      <Input
-        className="w-16 bg-dark-700 border-dark-500 text-white text-center"
-        value={formatTimeUnit(date.getMinutes())}
-        onChange={handleMinutesChange}
-        type="number"
-        min="0"
-        max="59"
-      />
+      
+      <div className="flex flex-col items-center">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-8 px-2 text-merah-500" 
+          onClick={incrementMinutes}
+        >
+          <ChevronUp className="h-4 w-4" />
+        </Button>
+        <Input
+          className="w-16 bg-dark-700 border-dark-500 text-white text-center"
+          value={formatTimeUnit(date.getMinutes())}
+          onChange={handleMinutesChange}
+          type="text"
+          aria-label="Minutes"
+        />
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-8 px-2 text-merah-500" 
+          onClick={decrementMinutes}
+        >
+          <ChevronDown className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 }

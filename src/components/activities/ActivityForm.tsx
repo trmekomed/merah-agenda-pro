@@ -25,6 +25,7 @@ import { DateTimePicker } from '@/components/ui/date-time-picker';
 import { Activity, ActivityLabel, ActivityLocation } from '@/types/activity';
 import { calculateDurationInMinutes, formatDuration } from '@/utils/dateUtils';
 import { parseISO } from 'date-fns';
+import { AlertCircle } from 'lucide-react';
 
 interface ActivityFormProps {
   initialData?: Activity;
@@ -40,6 +41,9 @@ const activityFormSchema = z.object({
   description: z.string().optional(),
   label: z.enum(['RO 1', 'RO 2', 'RO 3']),
   location: z.enum(['Kantor', 'Online', 'Jakarta', 'Luar Kota']),
+}).refine(data => data.end_time > data.start_time, {
+  message: "Waktu selesai harus lebih dari waktu mulai",
+  path: ["end_time"],
 });
 
 type ActivityFormData = z.infer<typeof activityFormSchema>;
@@ -47,33 +51,52 @@ type ActivityFormData = z.infer<typeof activityFormSchema>;
 const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormProps) => {
   const [duration, setDuration] = useState('');
 
-  const form = useForm<ActivityFormData>({
-    resolver: zodResolver(activityFormSchema),
-    defaultValues: initialData ? {
-      ...initialData,
-      start_time: parseISO(initialData.start_time),
-      end_time: parseISO(initialData.end_time),
-    } : {
+  // Parse string dates to Date objects
+  const getInitialValues = () => {
+    if (initialData) {
+      return {
+        ...initialData,
+        start_time: parseISO(initialData.start_time),
+        end_time: parseISO(initialData.end_time),
+      };
+    }
+    const now = new Date();
+    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+    
+    return {
       title: '',
-      start_time: new Date(),
-      end_time: new Date(new Date().getTime() + 60 * 60 * 1000), // 1 hour later
+      start_time: now,
+      end_time: oneHourLater,
       description: '',
       label: 'RO 1' as ActivityLabel,
       location: 'Kantor' as ActivityLocation,
-    },
+    };
+  };
+
+  const form = useForm<ActivityFormData>({
+    resolver: zodResolver(activityFormSchema),
+    defaultValues: getInitialValues(),
   });
 
   const startTime = form.watch('start_time');
   const endTime = form.watch('end_time');
 
+  // Update duration when start or end time changes
   useEffect(() => {
     if (startTime && endTime) {
-      const durationMinutes = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
+      const durationMinutes = Math.max(0, (endTime.getTime() - startTime.getTime()) / (1000 * 60));
       setDuration(formatDuration(durationMinutes));
+      
+      // If end time is before start time, update end time
+      if (endTime < startTime) {
+        const newEndTime = new Date(startTime.getTime() + 60 * 60 * 1000); // 1 hour later
+        form.setValue('end_time', newEndTime);
+      }
     }
-  }, [startTime, endTime]);
+  }, [startTime, endTime, form]);
 
   const handleSubmit = (data: ActivityFormData) => {
+    // Format dates as ISO strings for API
     const formattedData = {
       ...data,
       start_time: data.start_time.toISOString(),
@@ -83,11 +106,7 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
   };
 
   return (
-    <div className="p-2">
-      <h2 className="text-xl font-bold mb-4 text-white">
-        {mode === 'create' ? 'Tambah Kegiatan Baru' : 'Edit Kegiatan'}
-      </h2>
-
+    <div className="p-2 mt-4">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <FormField
@@ -140,14 +159,22 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
                       className="bg-dark-600 border-dark-500 text-white"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-merah-500" />
                 </FormItem>
               )}
             />
           </div>
 
-          <div className="bg-dark-600 p-3 rounded-md border border-dark-500">
-            <p className="text-sm text-slate-300">Durasi: <span className="font-medium text-white">{duration}</span></p>
+          <div className="bg-dark-600 p-3 rounded-md border border-dark-500 flex items-center space-x-2">
+            <div className="flex-grow">
+              <p className="text-sm text-slate-300">Durasi: <span className="font-medium text-white">{duration}</span></p>
+            </div>
+            {endTime < startTime && (
+              <div className="flex items-center text-merah-500 text-sm">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                <span>Waktu tidak valid</span>
+              </div>
+            )}
           </div>
 
           <FormField
@@ -161,6 +188,7 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
                     placeholder="Masukkan keterangan kegiatan" 
                     {...field} 
                     className="bg-dark-600 border-dark-500 text-white min-h-[100px]" 
+                    value={field.value || ''}
                   />
                 </FormControl>
                 <FormMessage />

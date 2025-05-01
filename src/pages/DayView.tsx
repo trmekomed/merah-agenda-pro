@@ -4,7 +4,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { parseISO, format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import ActivityList from '@/components/activities/ActivityList';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogTitle,
+  DialogDescription 
+} from '@/components/ui/dialog';
 import ActivityForm from '@/components/activities/ActivityForm';
 import { Plus, ArrowLeft, Calendar as CalendarIcon, Search, Table2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -132,6 +137,10 @@ const DayView = () => {
 
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="bg-dark-700 text-white border-dark-600 max-w-md">
+          <DialogTitle className="text-xl font-bold text-white">Tambah Kegiatan Baru</DialogTitle>
+          <DialogDescription className="text-slate-400">
+            Isi semua kolom untuk menambahkan kegiatan ke kalender.
+          </DialogDescription>
           <ActivityForm 
             onSubmit={handleAddActivity} 
             onCancel={() => setIsAddDialogOpen(false)} 
@@ -144,7 +153,7 @@ const DayView = () => {
               label: 'RO 1',
               location: 'Kantor',
               id: '',
-              created_by: user?.email || '' // Add the missing created_by field
+              created_by: user?.email || '' 
             }} 
           />
         </DialogContent>

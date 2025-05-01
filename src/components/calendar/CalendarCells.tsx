@@ -9,6 +9,8 @@ import {
   addDays, 
   isSameMonth, 
   isSameDay,
+  isWithinInterval,
+  parseISO,
   isWeekend
 } from 'date-fns';
 import { Activity } from '@/types/activity';
@@ -51,6 +53,35 @@ const CalendarCells = ({
     return holidays.some(holiday => isSameDay(date, holiday));
   };
 
+  // Check if a date is within any multi-day event
+  const isWithinMultiDayEvent = (date: Date) => {
+    return activities.some(activity => {
+      const start = parseISO(activity.start_time);
+      const end = parseISO(activity.end_time);
+      
+      // Check if it spans multiple days
+      if (start.toDateString() !== end.toDateString()) {
+        return isWithinInterval(date, { start, end });
+      }
+      return false;
+    });
+  };
+  
+  // Check if date has any activities (single or multi-day)
+  const hasActivitiesForDate = (date: Date) => {
+    return activities.some(activity => {
+      const start = parseISO(activity.start_time);
+      const end = parseISO(activity.end_time);
+      
+      // For single day events
+      if (start.toDateString() === end.toDateString()) {
+        return isSameDay(date, start);
+      }
+      // For multi-day events
+      return isWithinInterval(date, { start, end });
+    });
+  };
+
   while (day <= endDate) {
     for (let i = 0; i < 7; i++) {
       const cloneDay = day;
@@ -58,28 +89,34 @@ const CalendarCells = ({
       
       const isCurrentMonth = isSameMonth(day, monthStart);
       const isSelected = isSameDay(day, selectedDate);
-      const hasEvent = hasActivities(activities, cloneDay);
+      const hasEvent = hasActivitiesForDate(cloneDay);
+      const isMultiDayEvent = isWithinMultiDayEvent(cloneDay);
       const isHolidayDay = isHoliday(cloneDay);
       const isWeekendDay = isWeekend(cloneDay); // Check if it's weekend
+      const isToday = isSameDay(cloneDay, new Date());
 
       days.push(
         <div
           key={day.toString()}
           className={cn(
-            "h-12 relative flex items-center justify-center cursor-pointer",
+            "h-12 relative flex items-center justify-center cursor-pointer transition-colors duration-200 hover:bg-dark-600/50 active:bg-dark-500/70",
             !isCurrentMonth && "text-slate-600",
             (isHolidayDay || isWeekendDay) && isCurrentMonth && "text-merah-500",
+            isMultiDayEvent && isCurrentMonth && !isSelected && "bg-merah-700/20",
           )}
           onClick={() => handleDayClick(cloneDay)}
         >
           <div 
             className={cn(
-              "w-10 h-10 flex items-center justify-center rounded-full relative",
-              isSelected && "bg-merah-700 text-white"
+              "w-10 h-10 flex items-center justify-center rounded-full relative transition-transform duration-200 hover:scale-105",
+              isSelected && "bg-merah-700 text-white",
+              isToday && !isSelected && "border-2 border-merah-500"
             )}
           >
             {formattedDate}
-            {hasEvent && !isSelected && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-merah-700 rounded-full"></span>}
+            {hasEvent && !isSelected && (
+              <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-merah-700 rounded-full"></span>
+            )}
           </div>
         </div>
       );
