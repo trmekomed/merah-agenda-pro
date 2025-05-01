@@ -11,11 +11,11 @@ interface CalendarDayCellProps {
   isSelected: boolean;
   isWeekend: boolean;
   isHoliday?: boolean;
-  hasActivities?: boolean;
   activityLabels?: ActivityLabel[];
   isMultiDayStart?: boolean;
   isMultiDayMid?: boolean;
   isMultiDayEnd?: boolean;
+  onClick?: (date: Date) => void;
 }
 
 const roColorMap: Record<ActivityLabel, string> = {
@@ -30,20 +30,21 @@ export const CalendarDayCell: React.FC<CalendarDayCellProps> = ({
   isSelected,
   isWeekend,
   isHoliday,
-  hasActivities,
   activityLabels = [],
   isMultiDayStart,
   isMultiDayMid,
   isMultiDayEnd,
+  onClick,
 }) => {
   return (
     <div
+      onClick={() => onClick?.(date)}
       className={clsx(
-        "relative w-8 h-8 flex flex-col items-center justify-center text-sm rounded-md transition-all",
+        "relative w-full h-full flex flex-col items-center justify-center text-sm rounded-md transition-all",
         isSelected && "bg-red-600 text-white",
         !isSelected && isToday && "border-2 border-red-600 text-red-600",
         isHoliday || isWeekend ? "text-red-500" : "text-white",
-        "hover:bg-red-800/40"
+        "hover:bg-red-800/40 cursor-pointer"
       )}
     >
       {/** Multi-day background */}
