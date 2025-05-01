@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { parseISO, format } from 'date-fns';
-import { id } from 'date-fns/locale';
+import { parseISO } from 'date-fns';
 import ActivityList from '@/components/activities/ActivityList';
 import { 
   Dialog, 
@@ -19,6 +18,8 @@ import { formatDayAndDate } from '@/utils/dateUtils';
 import { useAuth } from '@/context/AuthContext';
 import SearchModal from '@/components/activities/SearchModal';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 const DayView = () => {
   const { date } = useParams<{ date: string }>();
@@ -28,6 +29,7 @@ const DayView = () => {
   const [refresh, setRefresh] = useState(false);
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Redirect if not logged in
   useEffect(() => {
@@ -84,61 +86,99 @@ const DayView = () => {
 
   return (
     <div className="min-h-screen bg-dark-700 text-white">
-      <header className="bg-dark-800 border-b border-dark-600 py-4 px-4 md:px-8">
+      <header className="bg-dark-800 border-b border-dark-600 py-3 px-3 md:py-4 md:px-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Button variant="ghost" size="icon" onClick={handleBackToCalendar} className="mr-2 text-white hover:text-merah-500 hover:bg-dark-600">
-              <ArrowLeft className="h-5 w-5" />
+            <Button 
+              variant="ghost" 
+              size={isMobile ? "icon-xs" : "icon"} 
+              onClick={handleBackToCalendar} 
+              className="mr-2 text-white hover:text-merah-500 hover:bg-dark-600"
+            >
+              <ArrowLeft className={isMobile ? "h-4 w-4" : "h-5 w-5"} />
             </Button>
-            <h1 className="text-2xl font-bold text-merah-500">Kalender Relasi Media</h1>
+            <h1 className={cn(
+              "text-merah-500 font-bold",
+              isMobile ? "text-base" : "text-2xl"
+            )}>Kalender Relasi Media</h1>
           </div>
           <div className="flex items-center">
-            <CalendarIcon className="h-5 w-5 mr-2 text-merah-500" />
-            <span className="text-sm font-medium">
+            <CalendarIcon className={cn(
+              "mr-2 text-merah-500",
+              isMobile ? "h-4 w-4" : "h-5 w-5"
+            )} />
+            <span className={cn(
+              "font-medium",
+              isMobile ? "text-xs" : "text-sm" 
+            )}>
               {formatDayAndDate(selectedDate)}
             </span>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 max-w-3xl">
+      <main className={cn(
+        "container mx-auto px-3 py-4",
+        isMobile ? "max-w-full" : "max-w-3xl md:px-4 md:py-6"
+      )}>
         <ActivityList date={selectedDate} key={`${selectedDate.toISOString()}-${refresh}`} />
       </main>
 
       {/* Floating Action Buttons */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center space-x-4">
+      <div className={cn(
+        "fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center",
+        isMobile ? "space-x-2" : "space-x-4"
+      )}>
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          className="h-12 w-12 rounded-full bg-dark-600 flex items-center justify-center shadow-lg text-white"
+          className={cn(
+            "rounded-full bg-dark-600 flex items-center justify-center shadow-lg text-white",
+            isMobile ? "h-10 w-10" : "h-12 w-12"
+          )}
           onClick={() => setIsSearchModalOpen(true)}
         >
-          <Search className="h-5 w-5" />
+          <Search className={isMobile ? "h-4 w-4" : "h-5 w-5"} />
         </motion.button>
         
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          className="h-16 w-16 rounded-full bg-merah-700 flex items-center justify-center shadow-lg"
+          className={cn(
+            "rounded-full bg-merah-700 flex items-center justify-center shadow-lg",
+            isMobile ? "h-14 w-14" : "h-16 w-16"
+          )}
           onClick={() => setIsAddDialogOpen(true)}
         >
-          <Plus className="h-8 w-8" />
+          <Plus className={isMobile ? "h-7 w-7" : "h-8 w-8"} />
         </motion.button>
         
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          className="h-12 w-12 rounded-full bg-dark-600 flex items-center justify-center shadow-lg text-white"
+          className={cn(
+            "rounded-full bg-dark-600 flex items-center justify-center shadow-lg text-white",
+            isMobile ? "h-10 w-10" : "h-12 w-12"
+          )}
           onClick={handleTableViewClick}
         >
-          <Table2 className="h-5 w-5" />
+          <Table2 className={isMobile ? "h-4 w-4" : "h-5 w-5"} />
         </motion.button>
       </div>
 
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="bg-dark-700 text-white border-dark-600 max-w-md">
-          <DialogTitle className="text-xl font-bold text-white">Tambah Kegiatan Baru</DialogTitle>
-          <DialogDescription className="text-slate-400">
+        <DialogContent className={cn(
+          "bg-dark-700 text-white border-dark-600",
+          isMobile ? "w-[95%] max-w-[95%] p-4" : "max-w-md"
+        )}>
+          <DialogTitle className={cn(
+            "font-bold text-white",
+            isMobile ? "text-lg" : "text-xl"
+          )}>Tambah Kegiatan Baru</DialogTitle>
+          <DialogDescription className={cn(
+            "text-slate-400",
+            isMobile && "text-sm"
+          )}>
             Isi semua kolom untuk menambahkan kegiatan ke kalender.
           </DialogDescription>
           <ActivityForm 

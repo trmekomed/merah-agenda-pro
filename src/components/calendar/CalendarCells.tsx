@@ -14,7 +14,6 @@ import {
   isWeekend
 } from 'date-fns';
 import { Activity } from '@/types/activity';
-import { hasActivities } from '@/utils/dateUtils';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
@@ -24,6 +23,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { getHolidayInfo } from '@/utils/holidaysUtils';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 interface CalendarCellsProps {
   currentMonth: Date;
@@ -47,6 +47,7 @@ const CalendarCells = ({
   const monthEnd = endOfMonth(monthStart);
   const startDate = startOfWeek(monthStart, { weekStartsOn: 1 }); // Monday as start of week
   const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   useEffect(() => {
     setHolidayInfo(getHolidayInfo());
@@ -118,7 +119,8 @@ const CalendarCells = ({
         <div
           key={day.toString()}
           className={cn(
-            "h-12 relative flex items-center justify-center cursor-pointer transition-colors duration-200 hover:bg-dark-600/50 active:bg-dark-500/70",
+            "relative flex items-center justify-center cursor-pointer transition-colors duration-200 hover:bg-dark-600/50 active:bg-dark-500/70",
+            isMobile ? "h-10" : "h-12",
             !isCurrentMonth && "text-slate-600",
             (isHolidayDay || isWeekendDay) && isCurrentMonth && "text-merah-500",
             isMultiDayEvent && isCurrentMonth && !isSelected && "bg-merah-700/20",
@@ -127,7 +129,8 @@ const CalendarCells = ({
         >
           <div 
             className={cn(
-              "w-10 h-10 flex items-center justify-center rounded-full relative transition-transform duration-200 hover:scale-105",
+              "flex items-center justify-center rounded-full relative transition-transform duration-200 hover:scale-105",
+              isMobile ? "w-8 h-8 text-sm" : "w-10 h-10",
               isSelected && "bg-merah-700 text-white",
               isToday && !isSelected && "border-2 border-merah-500"
             )}
@@ -147,7 +150,7 @@ const CalendarCells = ({
               <TooltipTrigger asChild>
                 {dayElement}
               </TooltipTrigger>
-              <TooltipContent className="bg-dark-800 text-white border-dark-600">
+              <TooltipContent side={isMobile ? "bottom" : "top"} align="center" className="bg-dark-800 text-white border-dark-600 text-xs">
                 <p>{holidayName}</p>
               </TooltipContent>
             </Tooltip>
@@ -172,8 +175,14 @@ const CalendarCells = ({
       {[1, 2, 3, 4, 5].map((row) => (
         <div key={row} className="grid grid-cols-7 mb-2">
           {[1, 2, 3, 4, 5, 6, 7].map((cell) => (
-            <div key={`${row}-${cell}`} className="h-12 flex items-center justify-center">
-              <Skeleton className="w-10 h-10 rounded-full bg-dark-600" />
+            <div key={`${row}-${cell}`} className={cn(
+              "flex items-center justify-center",
+              isMobile ? "h-10" : "h-12"
+            )}>
+              <Skeleton className={cn(
+                "rounded-full bg-dark-600",
+                isMobile ? "w-8 h-8" : "w-10 h-10"
+              )} />
             </div>
           ))}
         </div>

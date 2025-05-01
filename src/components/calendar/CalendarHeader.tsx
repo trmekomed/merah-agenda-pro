@@ -1,9 +1,10 @@
 
-import { format, addMonths, subMonths, isSameMonth } from 'date-fns';
+import { format } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { id } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 interface CalendarHeaderProps {
   currentMonth: Date;
@@ -12,53 +13,60 @@ interface CalendarHeaderProps {
 }
 
 const CalendarHeader = ({ currentMonth, onMonthChange, onTodayClick }: CalendarHeaderProps) => {
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  
   const prevMonth = () => {
-    onMonthChange(subMonths(currentMonth, 1));
+    const date = new Date(currentMonth);
+    date.setMonth(date.getMonth() - 1);
+    onMonthChange(date);
   };
 
   const nextMonth = () => {
-    onMonthChange(addMonths(currentMonth, 1));
+    const date = new Date(currentMonth);
+    date.setMonth(date.getMonth() + 1);
+    onMonthChange(date);
   };
 
-  const today = new Date();
-  const isCurrentMonth = isSameMonth(today, currentMonth);
+  const formatMonthYear = () => {
+    return format(currentMonth, 'MMMM yyyy', { locale: id });
+  };
 
   return (
-    <div className="flex justify-between items-center mb-6 px-2 text-center">
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        onClick={prevMonth}
-        className="text-white hover:text-merah-500 hover:bg-dark-600 transition-colors duration-200"
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </Button>
-      
-      <h2 className="text-xl font-semibold uppercase tracking-wider text-white">
-        {format(currentMonth, 'MMMM yyyy', { locale: id })}
-      </h2>
-      
-      <div className="flex items-center gap-2">
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={onTodayClick}
-          className={cn(
-            "text-white border-merah-500 hover:bg-merah-500/20",
-            isCurrentMonth && "bg-merah-500/20"
-          )}
-        >
-          Hari Ini
-        </Button>
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex gap-1">
         <Button 
           variant="ghost" 
-          size="icon" 
-          onClick={nextMonth}
-          className="text-white hover:text-merah-500 hover:bg-dark-600 transition-colors duration-200"
+          size={isMobile ? "icon-xs" : "icon"}
+          onClick={prevMonth}
+          className="text-white hover:text-merah-500 hover:bg-dark-500"
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronLeft className={cn("h-4 w-4", !isMobile && "h-5 w-5")} />
+        </Button>
+        <Button
+          variant="ghost"
+          size={isMobile ? "icon-xs" : "icon"}
+          onClick={nextMonth}
+          className="text-white hover:text-merah-500 hover:bg-dark-500"
+        >
+          <ChevronRight className={cn("h-4 w-4", !isMobile && "h-5 w-5")} />
         </Button>
       </div>
+
+      <h2 className={cn(
+        "text-white font-medium capitalize",
+        isMobile ? "text-sm" : "text-lg"
+      )}>
+        {formatMonthYear()}
+      </h2>
+
+      <Button
+        variant="outline"
+        size={isMobile ? "xs" : "sm"}
+        onClick={onTodayClick}
+        className="border-merah-500 text-merah-500 hover:bg-merah-500 hover:text-white"
+      >
+        Hari Ini
+      </Button>
     </div>
   );
 };

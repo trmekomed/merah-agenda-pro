@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface TimePickerProps {
   date: Date;
@@ -16,6 +17,8 @@ export function TimePickerDemo({
   setDate,
   className,
 }: TimePickerProps) {
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  
   // Function to set the time from hours and minutes
   function setTime(hours: number, minutes: number) {
     const newDate = new Date(date);
@@ -74,6 +77,9 @@ export function TimePickerDemo({
     e.stopPropagation();
   };
 
+  const buttonSize = isMobile ? "icon-xs" : "sm";
+  const inputWidth = isMobile ? "w-14" : "w-16";
+
   return (
     <div 
       className={cn("flex items-center gap-2", className)}
@@ -82,14 +88,18 @@ export function TimePickerDemo({
       <div className="flex flex-col items-center">
         <Button 
           variant="ghost" 
-          size="sm" 
-          className="h-8 px-2 text-merah-500" 
+          size={buttonSize}
+          className="text-merah-500" 
           onClick={incrementHours}
         >
-          <ChevronUp className="h-4 w-4" />
+          <ChevronUp className={isMobile ? "h-3 w-3" : "h-4 w-4"} />
         </Button>
         <Input
-          className="w-16 bg-dark-700 border-dark-500 text-white text-center"
+          className={cn(
+            "bg-dark-700 border-dark-500 text-white text-center",
+            inputWidth,
+            isMobile && "text-sm h-8"
+          )}
           value={formatTimeUnit(date.getHours())}
           onChange={handleHoursChange}
           type="text"
@@ -98,11 +108,11 @@ export function TimePickerDemo({
         />
         <Button 
           variant="ghost" 
-          size="sm" 
-          className="h-8 px-2 text-merah-500" 
+          size={buttonSize}
+          className="text-merah-500" 
           onClick={decrementHours}
         >
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className={isMobile ? "h-3 w-3" : "h-4 w-4"} />
         </Button>
       </div>
       
@@ -111,14 +121,18 @@ export function TimePickerDemo({
       <div className="flex flex-col items-center">
         <Button 
           variant="ghost" 
-          size="sm" 
-          className="h-8 px-2 text-merah-500" 
+          size={buttonSize}
+          className="text-merah-500" 
           onClick={incrementMinutes}
         >
-          <ChevronUp className="h-4 w-4" />
+          <ChevronUp className={isMobile ? "h-3 w-3" : "h-4 w-4"} />
         </Button>
         <Input
-          className="w-16 bg-dark-700 border-dark-500 text-white text-center"
+          className={cn(
+            "bg-dark-700 border-dark-500 text-white text-center",
+            inputWidth,
+            isMobile && "text-sm h-8"
+          )}
           value={formatTimeUnit(date.getMinutes())}
           onChange={handleMinutesChange}
           type="text"
@@ -127,11 +141,11 @@ export function TimePickerDemo({
         />
         <Button 
           variant="ghost" 
-          size="sm" 
-          className="h-8 px-2 text-merah-500" 
+          size={buttonSize}
+          className="text-merah-500" 
           onClick={decrementMinutes}
         >
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className={isMobile ? "h-3 w-3" : "h-4 w-4"} />
         </Button>
       </div>
     </div>

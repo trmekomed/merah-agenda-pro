@@ -8,6 +8,7 @@ import { CalendarIcon, Clock } from "lucide-react";
 import { TimePickerDemo } from "./time-picker";
 import { Button } from "./button";
 import { id } from 'date-fns/locale';
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 interface DateTimePickerProps {
   date: Date;
@@ -21,6 +22,7 @@ export function DateTimePicker({
   className,
 }: DateTimePickerProps) {
   const [selectedDate, setSelectedDate] = React.useState<Date>(date);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Update the parent component's state when the selected date changes
   React.useEffect(() => {
@@ -71,7 +73,11 @@ export function DateTimePicker({
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-auto p-0 bg-dark-600 border-dark-500" 
+        className={cn(
+          "p-0 bg-dark-600 border-dark-500",
+          isMobile ? "w-[280px]" : "w-auto"
+        )}
+        align="center"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-4 border-b border-dark-500">
@@ -92,10 +98,16 @@ export function DateTimePicker({
           selected={selectedDate}
           onSelect={handleDateSelect}
           initialFocus
-          className="border-t border-dark-500 p-3"
+          className={cn(
+            "border-t border-dark-500 p-3 pointer-events-auto",
+            isMobile && "text-sm"
+          )}
           classNames={{
             day_today: "bg-merah-500/20 text-merah-500 font-bold",
             day_selected: "bg-merah-700 text-white hover:bg-merah-800",
+            day: cn(
+              isMobile && "h-8 w-8 p-0 text-xs"
+            )
           }}
         />
       </PopoverContent>

@@ -8,6 +8,7 @@ import { Activity } from '@/types/activity';
 import { getAllActivities } from '@/services/activityService';
 import { fetchNationalHolidays } from '@/utils/holidaysUtils';
 import { cn } from '@/lib/utils';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 interface CalendarProps {
   selectedDate: Date;
@@ -19,6 +20,7 @@ const Calendar = ({ selectedDate, onDateChange }: CalendarProps) => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [holidays, setHolidays] = useState<Date[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -53,7 +55,10 @@ const Calendar = ({ selectedDate, onDateChange }: CalendarProps) => {
   };
 
   return (
-    <div className="bg-dark-600 rounded-xl p-4 shadow-lg">
+    <div className={cn(
+      "bg-dark-600 rounded-xl shadow-lg",
+      isMobile ? "p-2" : "p-4"
+    )}>
       <CalendarHeader 
         currentMonth={currentMonth} 
         onMonthChange={setCurrentMonth} 
