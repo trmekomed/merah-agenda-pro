@@ -34,8 +34,12 @@ const Calendar = ({ selectedDate, onDateChange }: CalendarProps) => {
     };
 
     const fetchHolidays = async () => {
-      const holidayDates = await fetchNationalHolidays();
-      setHolidays(holidayDates);
+      try {
+        const holidayDates = await fetchNationalHolidays();
+        setHolidays(holidayDates);
+      } catch (error) {
+        console.error("Failed to fetch holidays:", error);
+      }
     };
 
     fetchActivities();

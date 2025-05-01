@@ -54,11 +54,6 @@ export function DateTimePicker({
     setSelectedDate(newDate);
   };
 
-  // Prevent click events from bubbling up to parent elements
-  const handlePopoverClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -77,11 +72,7 @@ export function DateTimePicker({
       </PopoverTrigger>
       <PopoverContent 
         className="w-auto p-0 bg-dark-600 border-dark-500" 
-        onClick={handlePopoverClick}
-        onInteractOutside={(e) => {
-          // Don't close the popover when interacting with the calendar or time picker
-          e.preventDefault();
-        }}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="p-4 border-b border-dark-500">
           <div className="flex items-center justify-center mb-2">
@@ -101,7 +92,7 @@ export function DateTimePicker({
           selected={selectedDate}
           onSelect={handleDateSelect}
           initialFocus
-          className="border-t border-dark-500 p-3 pointer-events-auto"
+          className="border-t border-dark-500 p-3"
           classNames={{
             day_today: "bg-merah-500/20 text-merah-500 font-bold",
             day_selected: "bg-merah-700 text-white hover:bg-merah-800",

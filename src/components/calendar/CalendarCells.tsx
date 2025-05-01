@@ -17,6 +17,13 @@ import { Activity } from '@/types/activity';
 import { hasActivities } from '@/utils/dateUtils';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { getHolidayInfo } from '@/utils/holidaysUtils';
 
 interface CalendarCellsProps {
   currentMonth: Date;
@@ -35,10 +42,15 @@ const CalendarCells = ({
   holidays,
   isLoading
 }: CalendarCellsProps) => {
+  const [holidayInfo, setHolidayInfo] = useState<Map<string, string>>(new Map());
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
   const startDate = startOfWeek(monthStart, { weekStartsOn: 1 }); // Monday as start of week
   const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
+
+  useEffect(() => {
+    setHolidayInfo(getHolidayInfo());
+  }, []);
 
   const rows = [];
   let days = [];
@@ -51,6 +63,12 @@ const CalendarCells = ({
   // Check if a date is a holiday
   const isHoliday = (date: Date) => {
     return holidays.some(holiday => isSameDay(date, holiday));
+  };
+
+  // Get holiday name for a specific date
+  const getHolidayName = (date: Date): string | undefined => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return holidayInfo.get(dateStr);
   };
 
   // Check if a date is within any multi-day event
@@ -92,10 +110,11 @@ const CalendarCells = ({
       const hasEvent = hasActivitiesForDate(cloneDay);
       const isMultiDayEvent = isWithinMultiDayEvent(cloneDay);
       const isHolidayDay = isHoliday(cloneDay);
+      const holidayName = isHolidayDay ? getHolidayName(cloneDay) : undefined;
       const isWeekendDay = isWeekend(cloneDay); // Check if it's weekend
       const isToday = isSameDay(cloneDay, new Date());
 
-      days.push(
+      const dayElement = (
         <div
           key={day.toString()}
           className={cn(
@@ -120,6 +139,24 @@ const CalendarCells = ({
           </div>
         </div>
       );
+
+      if (isHolidayDay && holidayName) {
+        days.push(
+          <TooltipProvider key={day.toString()}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                {dayElement}
+              </TooltipTrigger>
+              <TooltipContent className="bg-dark-800 text-white border-dark-600">
+                <p>{holidayName}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      } else {
+        days.push(dayElement);
+      }
+      
       day = addDays(day, 1);
     }
     rows.push(
