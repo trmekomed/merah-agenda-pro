@@ -106,10 +106,6 @@ export function DateTimePicker({
             day_today: "bg-merah-500/20 text-merah-500 font-bold",
             day_selected: "bg-merah-700 text-white hover:bg-merah-800",
           }}
-          onDayClick={(day: React.MouseEvent) => {
-            // Fix: Use the MouseEvent parameter instead of a Date object
-            day.stopPropagation();
-          }}
         />
       </PopoverContent>
     </Popover>
