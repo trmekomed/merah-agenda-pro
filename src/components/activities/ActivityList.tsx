@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Activity } from '@/types/activity';
@@ -8,7 +7,7 @@ import { getActivitiesForDay } from '@/utils/dateUtils';
 import { formatDayAndDate } from '@/utils/dateUtils';
 import { id } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/components/ui/toaster';
+import { useToast } from '@/hooks/use-toast';
 
 interface ActivityListProps {
   date: Date;
