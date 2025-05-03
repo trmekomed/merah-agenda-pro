@@ -56,15 +56,12 @@ const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
 >(({ side = "right", className, children, ...props }, ref) => {
-  const handleInteractOutside = usePreventInteractOutside();
-  
   return (
   <SheetPortal>
     <SheetOverlay />
     <SheetPrimitive.Content
       ref={ref}
       className={cn(sheetVariants({ side }), className)}
-      onInteractOutside={handleInteractOutside}
       {...props}
     >
       {children}

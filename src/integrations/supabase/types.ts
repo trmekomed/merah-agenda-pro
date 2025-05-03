@@ -48,6 +48,81 @@ export type Database = {
         }
         Relationships: []
       }
+      agenda_items: {
+        Row: {
+          catatan_redaksi: string | null
+          created_at: string
+          focus_pemberitaan: string
+          headline: string
+          id: string
+          issue_badge: string | null
+          kata_kunci: string[]
+          link_pendukung: string | null
+          narasi_positif: string[]
+          narasumber_rujukan: string | null
+          rekomendasi_format: string
+          updated_at: string
+          week_end_date: string
+          week_start_date: string
+        }
+        Insert: {
+          catatan_redaksi?: string | null
+          created_at?: string
+          focus_pemberitaan: string
+          headline: string
+          id?: string
+          issue_badge?: string | null
+          kata_kunci?: string[]
+          link_pendukung?: string | null
+          narasi_positif?: string[]
+          narasumber_rujukan?: string | null
+          rekomendasi_format: string
+          updated_at?: string
+          week_end_date: string
+          week_start_date: string
+        }
+        Update: {
+          catatan_redaksi?: string | null
+          created_at?: string
+          focus_pemberitaan?: string
+          headline?: string
+          id?: string
+          issue_badge?: string | null
+          kata_kunci?: string[]
+          link_pendukung?: string | null
+          narasi_positif?: string[]
+          narasumber_rujukan?: string | null
+          rekomendasi_format?: string
+          updated_at?: string
+          week_end_date?: string
+          week_start_date?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          nickname: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id: string
+          nickname?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          nickname?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
