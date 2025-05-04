@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Activity } from '@/types/activity';
@@ -14,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
+import { DateRange } from 'react-day-picker';
 
 const TableView = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -24,10 +24,7 @@ const TableView = () => {
     label: '',
     location: '',
   });
-  const [dateRange, setDateRange] = useState<{
-    from: Date | undefined;
-    to: Date | undefined;
-  }>({
+  const [dateRange, setDateRange] = useState<DateRange>({
     from: undefined,
     to: undefined,
   });
@@ -204,10 +201,7 @@ const TableView = () => {
                 <PopoverContent className="w-auto p-0 bg-dark-700 border-dark-500" align="start">
                   <CalendarComponent
                     mode="range"
-                    selected={{
-                      from: dateRange.from,
-                      to: dateRange.to,
-                    }}
+                    selected={dateRange}
                     onSelect={setDateRange}
                     initialFocus
                     className="p-3 pointer-events-auto"
