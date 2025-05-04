@@ -31,12 +31,18 @@ const queryClient = new QueryClient({
   },
 });
 
+// Helper function to get initials from email
+const getEmailInitials = (email?: string): string => {
+  if (!email) return "?";
+  return email.charAt(0).toUpperCase();
+};
+
 const IndexContent = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, signOut, isLoading } = useAuth();
+  const { user, signOut, isLoading: isAuthLoading } = useAuth();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const { createActivity } = useActivities();
 
@@ -58,7 +64,7 @@ const IndexContent = () => {
         created_by: user.email || ''
       };
       
-      createActivity(activityData);
+      await createActivity(activityData);
       setIsAddDialogOpen(false);
     } catch (error) {
       console.error("Failed to add activity:", error);
@@ -82,20 +88,23 @@ const IndexContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-dark-700 text-white">
+    <div className="min-h-screen bg-dark-700 text-white pb-20">
       <header className="bg-dark-800 border-b border-dark-600 py-3 px-3 md:px-6 md:py-4">
         <div className="flex items-center justify-between">
           <h1 className={cn(
-            "text-merah-500 font-medium",
-            isMobile ? "text-sm" : "text-lg"
+            "text-merah-500 font-semibold",
+            isMobile ? "text-base" : "text-xl"
           )}>Kalender Relasi Media</h1>
           <div className="flex items-center space-x-2">
             {user ? (
               <>
-                <span className={cn(
-                  "text-slate-300",
-                  isMobile ? "text-xs" : "text-sm"
-                )}>{user.email}</span>
+                {isMobile ? (
+                  <div className="w-8 h-8 rounded-full bg-merah-700 flex items-center justify-center text-white font-medium">
+                    {getEmailInitials(user.email)}
+                  </div>
+                ) : (
+                  <span className="text-slate-300 text-sm">{user.email}</span>
+                )}
                 <Button 
                   onClick={handleLogout} 
                   variant="ghost" 
@@ -105,7 +114,7 @@ const IndexContent = () => {
                   Keluar
                 </Button>
               </>
-            ) : isLoading ? (
+            ) : isAuthLoading ? (
               <span className={cn(
                 "text-slate-300",
                 isMobile ? "text-xs" : "text-sm"
@@ -143,12 +152,13 @@ const IndexContent = () => {
 
       {/* Floating Action Buttons */}
       <div className={cn(
-        "fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center",
+        "fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center z-10",
         isMobile ? "space-x-2" : "space-x-4"
       )}>
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
           className={cn(
             "rounded-full bg-dark-600 flex items-center justify-center shadow-lg text-white",
             isMobile ? "h-10 w-10" : "h-12 w-12"
@@ -161,6 +171,7 @@ const IndexContent = () => {
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
           className={cn(
             "rounded-full bg-merah-700 flex items-center justify-center shadow-lg",
             isMobile ? "h-14 w-14" : "h-16 w-16" 
@@ -180,6 +191,7 @@ const IndexContent = () => {
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
           className={cn(
             "rounded-full bg-dark-600 flex items-center justify-center shadow-lg text-white",
             isMobile ? "h-10 w-10" : "h-12 w-12"
@@ -193,7 +205,7 @@ const IndexContent = () => {
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className={cn(
           "bg-dark-700 text-white border-dark-600",
-          isMobile ? "w-[calc(100%-24px)] max-h-[80vh] p-3 max-w-none" : "max-w-md"
+          isMobile ? "w-[calc(100%-24px)] max-h-[80vh] overflow-y-auto p-3 max-w-none" : "max-w-md"
         )}>
           <DialogTitle className={cn(
             "font-bold text-white",

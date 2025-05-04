@@ -25,7 +25,7 @@ import { SimpleDateTimeInput } from '@/components/ui/simple-date-time-input';
 import { Activity, ActivityLabel, ActivityLocation } from '@/types/activity';
 import { calculateDurationInMinutes, formatDuration } from '@/utils/dateUtils';
 import { parseISO } from 'date-fns';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
@@ -52,6 +52,7 @@ type ActivityFormData = z.infer<typeof activityFormSchema>;
 
 const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormProps) => {
   const [duration, setDuration] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Parse string dates to Date objects
@@ -59,8 +60,8 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
     if (initialData) {
       return {
         ...initialData,
-        start_time: parseISO(initialData.start_time),
-        end_time: parseISO(initialData.end_time),
+        start_time: typeof initialData.start_time === 'string' ? parseISO(initialData.start_time) : initialData.start_time,
+        end_time: typeof initialData.end_time === 'string' ? parseISO(initialData.end_time) : initialData.end_time,
       };
     }
     
@@ -99,18 +100,27 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
     }
   }, [startTime, endTime, form]);
 
-  const handleSubmit = (data: ActivityFormData) => {
-    // Format dates as ISO strings for API
-    const formattedData = {
-      ...data,
-      start_time: data.start_time.toISOString(),
-      end_time: data.end_time.toISOString(),
-    };
-    onSubmit(formattedData);
+  const handleSubmit = async (data: ActivityFormData) => {
+    setIsSubmitting(true);
+    
+    try {
+      // Format dates as ISO strings for API
+      const formattedData = {
+        ...data,
+        start_time: data.start_time.toISOString(),
+        end_time: data.end_time.toISOString(),
+      };
+      await onSubmit(formattedData);
+      form.reset(getInitialValues());
+    } catch (error) {
+      console.error("Submit error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="p-2 mt-4 max-h-[60vh] overflow-y-auto">
+    <div className={cn("p-2 mt-4", isMobile ? "max-h-[60vh]" : "")} style={{ overflowY: 'auto' }}>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <FormField
@@ -279,6 +289,7 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
               type="button" 
               variant="outline" 
               onClick={onCancel} 
+              disabled={isSubmitting}
               size={isMobile ? "sm" : "default"}
               className="border-merah-700 text-merah-500 hover:bg-merah-700/20"
             >
@@ -288,8 +299,16 @@ const ActivityForm = ({ initialData, onSubmit, onCancel, mode }: ActivityFormPro
               type="submit" 
               className="bg-merah-700 hover:bg-merah-800 text-white"
               size={isMobile ? "sm" : "default"}
+              disabled={isSubmitting}
             >
-              {mode === 'create' ? 'Tambah Kegiatan' : 'Simpan Perubahan'}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {mode === 'create' ? 'Menyimpan...' : 'Memperbarui...'}
+                </>
+              ) : (
+                mode === 'create' ? 'Tambah Kegiatan' : 'Simpan Perubahan'
+              )}
             </Button>
           </div>
         </form>

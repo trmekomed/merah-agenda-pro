@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import {
   format,
@@ -105,6 +106,7 @@ const CalendarCells = ({
           isSelected={isSameDay(cloneDay, selectedDate)}
           isWeekend={isWeekend(cloneDay)}
           isHoliday={isHoliday(cloneDay)}
+          isCurrentMonth={isCurrentMonth}
           activityLabels={getActivityLabelsForDate(cloneDay)}
           isMultiDayStart={isMultiDayStart(cloneDay)}
           isMultiDayMid={isMultiDayMid(cloneDay)}
@@ -116,13 +118,17 @@ const CalendarCells = ({
       days.push(
         <div
           key={cloneDay.toString()}
-          className={!isCurrentMonth ? "text-slate-600" : ""}
+          className={!isCurrentMonth ? "text-slate-600 opacity-50" : ""}
         >
           {holidayName ? (
             <TooltipProvider>
-              <Tooltip>
+              <Tooltip delayDuration={300}>
                 <TooltipTrigger asChild>{cell}</TooltipTrigger>
-                <TooltipContent side={isMobile ? 'bottom' : 'top'} align="center" className="bg-dark-800 text-white border-dark-600 text-xs">
+                <TooltipContent 
+                  side={isMobile ? 'bottom' : 'top'} 
+                  align="center" 
+                  className="bg-dark-800 text-white border-dark-600 text-xs"
+                >
                   <p>{holidayName}</p>
                 </TooltipContent>
               </Tooltip>
